@@ -1,0 +1,8 @@
+<launch>
+  <!-- Custom Scripts -->
+  <node pkg="alex_scripts" type="pub_test.py" name="pub_test">
+  </node>
+  <node pkg="alex_scripts" type="sub_test.py" name="sub_test">
+  </node>
+
+</launch>
