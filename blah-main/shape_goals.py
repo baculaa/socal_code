@@ -40,7 +40,17 @@ class Initiator:
         self.ref_point = (4, 0)
         self.rob_id = 0 # all robots will be 0, 1, or 2
 
-    def get_into_formation(self,shape, x_ref=0,y_ref=0,side_length,num_rob,orientation):
+    def get_into_formation(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
+
+        # if self.rob_id == 0:
+        #     x_ref = 0
+        #     y_ref = 0
+        # elif self.rob_id == 1:
+        #     x_ref = ????
+        #     y_ref = ????
+        # else:
+        #     x_ref = ????
+        #     y_ref = ????
 
         if shape == 'triangle':
             goals = self.triangle(shape, x_ref,y_ref,side_length,num_rob,orientation)
@@ -63,16 +73,27 @@ class Initiator:
 
 
         goal = Point()
-
-    def move_to_ref_point(self,x_ref,y_ref):
-
-
-        goal = Point()
-
-        response = raw_input("Are you ready for act 2? ")
+        goal.X = x_goal
+        goal.Y = y_goal
 
         self.mover.move_to_goal_point(goal)
         self.mover.correct_orientation(goal)
+        self.mover.final_formation_orientation(orientation)
+
+
+    def reset_origin(self):
+        pass
+        # help idk how to do this
+
+
+    def move_to_ref_point(self,x_ref,y_ref):
+        goal = Point()
+        goal.X = x_ref
+        goal.Y = y_ref
+
+        self.mover.move_to_goal_point(goal)
+
+
 
     def triangle(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
 

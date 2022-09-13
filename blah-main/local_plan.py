@@ -126,9 +126,6 @@ class Movement:
             self.r.sleep()
 
 
-
-
-
     def return_to_starting_pos(self):
         startGoal = Point()
         startGoal.x = 0
@@ -182,3 +179,13 @@ class Movement:
                  self.move.angular.z = 0.0
                  reached = True
             self.pub.publish(self.move)
+
+    def final_formation_orientation(self,orientation):
+        while abs(self.theta - orientation) > self.delta*0.5:
+            if self.theta < orientation:
+                self.move.linear.x = 0.0
+                self.move.angular.z = self.rot_speed  # 0.25
+            else:
+                self.move.linear.x = 0.0
+                self.move.angular.z = -self.rot_speed
+
