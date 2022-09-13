@@ -234,10 +234,10 @@ class geometry:
                 return storedInfo
 
     # User chooses to create a square with the robots
-    def square(self,shape):
+    def square(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
 
         # Retrieves the info required to compute
-        squareInfo = self.userInformation(shape)
+        squareInfo = self.userInformation(shape,x_ref,y_ref,side_length,num_rob,orientation)
 
         # 4 robot configuration
         if squareInfo[3] == 4:
@@ -490,10 +490,10 @@ class geometry:
         return squareGoal
 
     # User chooses to create a triangle with the robots
-    def triangle(self,shape):
+    def triangle(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
 
         # Retrieves the info required to compute
-        triangleInfo = self.userInformation(shape)
+        triangleInfo = self.userInformation(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         if triangleInfo[3] % 2 == 0:
             # We have an even number of robots
@@ -624,10 +624,10 @@ class geometry:
         return triangleGoal
 
     # User chooses to create a semi-circle with the robots
-    def semiCircle(self,shape):
+    def semiCircle(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
 
         # Retrieves the info required to compute
-        semiCirlceInfo = self.userInformation(shape)
+        semiCirlceInfo = self.userInformation(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         semiCircleGoal = np.zeros(int(semiCirlceInfo[3]) * 2)
 
@@ -697,10 +697,10 @@ class geometry:
             return semiCircleGoal
 
     # User chooses to create a clump with the robots
-    def clump(self,shape):
+    def clump(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
 
         # Retrieves the info required to compute
-        clumpInfo = self.userInformation(shape)
+        clumpInfo = self.userInformation(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         clumpGoal = np.zeros(int(clumpInfo[3]) * 2)
 
@@ -797,10 +797,10 @@ class geometry:
         return clumpGoal
 
     # User chooses to create a circle with the robots
-    def circle(self,shape):
+    def circle(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
 
         # Retrieves the info required to compute
-        circleInfo = self.userInformation(shape)
+        circleInfo = self.userInformation(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         circleGoal = np.zeros(int(circleInfo[3]) * 2)
 
@@ -832,10 +832,10 @@ class geometry:
         return circleGoal
 
     # User chooses to create a line with the robots
-    def line(self,shape):
+    def line(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
 
         # Retrieves the info required to compute
-        lineInfo = self.userInformation(shape)
+        lineInfo = self.userInformation(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         lineGoal = np.zeros(int(lineInfo[3]) * 2)
 
@@ -908,30 +908,31 @@ class geometry:
 
             return lineGoal
 
-    def main(self):
+    def main(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
 
-        # # Asks the user what shape they would like tp illustrate from the robots
-        print("1. Square \n2. Triangle \n3. Semi-Circle \n4. Clump \n5. Circle \n6. Line")
-        shape = input("What shape would you like to select: ").lower()
+        # # # Asks the user what shape they would like tp illustrate from the robots
+        # print("1. Square \n2. Triangle \n3. Semi-Circle \n4. Clump \n5. Circle \n6. Line")
+        # shape = input("What shape would you like to select: ").lower()
+
 
         # Performs the shape which the user asks
         if shape == "square":
-            goal = self.square(shape)
+            goal = self.square(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         elif shape == "triangle":
-            goal = self.triangle(shape)
+            goal = self.triangle(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         elif shape == "semi-circle":
-            goal = self.semiCircle(shape)
+            goal = self.semiCircle(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         elif shape == "clump":
-            goal = self.clump(shape)
+            goal = self.clump(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         elif shape == "circle":
-            goal = self.circle(shape)
+            goal = self.circle(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         else:
-            goal = self.line(shape)
+            goal = self.line(shape, x_ref,y_ref,side_length,num_rob,orientation)
 
         self.goals = goal
         return self.goals

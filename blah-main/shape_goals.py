@@ -12,7 +12,7 @@ import rospy
 import math
 import actionlib
 import local_plan # imports the Movement class from the movement.py file
-import
+
 
 
 # Just here for imports in case the Movement class variables need to see it in this file
@@ -28,333 +28,248 @@ from math import atan2
 
 
 
-# def write_script(row, column):
-#     #print(trial_number, test_df.iloc[row, column])
-#     condition= random.choice(conditions)
-#     relationship=random.choice(relationships)
-#     print('Scenario:', test_df.iloc[row, column], condition, ',',relationship)
-#     return 'Scenario:', test_df.iloc[row, column], condition, ',',relationship
-
-
 
 #######################################
 # CLASS NAME: Initiator
-# DESCRIPTION: Represents the initiator variable in our cocktailbot study
-#
-# INPUT: a Movement() object for directing
+
 #
 #######################################
 class Initiator:
-    def __init__(self, mover):
-        self.mover = mover
-        ## CHANGE LATER?
+    def __init__(self):
+
         self.ref_point = (4, 0)
-        self.offset = (0, 0) # -0.5,
+        self.rob_id = 0 # all robots will be 0, 1, or 2
 
-    def set_clump_shape_goals(self, direction, grouping):
+    def get_into_formation(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
 
-        # # wait X amount of seconds before moving
-        # time.sleep(random.choice([10,15,20]))
-
-        # STARTING OFFSET POSITIONS OF ROBOTS
-        # 1: (2, 0.5)
-        # 2: (2, 0.5)
-        # 8: (2, -0.5)
-        # 10: (2, -0.5)
-
-        # STARTING ROBOT POSITION ACCORDING TO RVIZ
-        # 1: (2, 0)
-        # 2: (2, 0)
-        # 8: (2, 0)
-        # 10: (2, 0)
+        if shape == 'triangle':
+            goals = self.triangle(shape, x_ref,y_ref,side_length,num_rob,orientation)
+        elif shape == 'line':
+            goals = self.line(shape, x_ref, y_ref, side_length, num_rob, orientation)
 
 
         goal = Point()
 
-        if direction == 'towards' and grouping == "disperse": # in test_df.iloc[row][column]:
-            # FOR ROBOT 2
-            goal.x = self.ref_point[0] # 
-            goal.y = self.offset[1] + 0.5
-           
-            # # FOR ROBOTS 1 and 8
-            # goal.x = self.ref_point[0] - 0.5 # already farther in front than robots 2 and 10 by 0.5
-            # goal.y = self.offset[1]
-
-            # FOR ROBOT 10
-            # goal.x = self.ref_point[0] # - self.offset[0]
-            # goal.y = self.offset[1] - 0.5
-
-        elif direction == 'towards' and grouping == "clump": # in test_df.iloc[row][column]:
-            # # FORWARD ROBOTS 1 and 8
-            # goal.x = self.ref_point[0] # already farther in front than robots 2 and 10 by 0.5
-            # goal.y = self.offset[1] # robot 8 -0.25
-
-            # ROBOT 2
-            goal.x = self.ref_point[0] - 0.25
-            goal.y = self.offset[1] - 0.25 #robot 10 -0.6
-
-            # ROBOT 10
-            # goal.x = self.ref_point[0] - 0.25
-            # goal.y = self.offset[1] + 0.25 #robot 10 -0.6
-
-        elif direction == 'away' and grouping == "disperse": # in test_df.iloc[row][column]:
-            # FOR ROBOTS 2 and 10
-            goal.x = self.offset[0] - 0.25
-            goal.y = self.offset[1]
-
-            # # FOR ROBOT 1
-            # goal.x = self.offset[0] - 0.25
-            # goal.y = self.offset[1] + 0.5
-
-            # FOR ROBOT 8
-            # goal.x = self.offset[0] - 0.25
-            # goal.y = self.offset[1] - 0.5
-
-        elif direction == 'away' and grouping == "clump":
-            # FOR ALL ROBOTS
-            goal.x = self.offset[0] - 0.25
-            goal.y = 0
-
-        # else:
-        #     goal.x = 1
-        #     goal.y = 0
-
-        response = raw_input("Are you ready for act 2? ")
-        self.mover.move_to_goal_point(goal)
-        self.mover.correct_orientation(goal)
 
 
-
-
-    def set_disperse_shape_goals(self, direction, grouping):
-
-        # # wait X amount of seconds before moving
-        # time.sleep(random.choice([10,15,20]))
-
-        # STARTING OFFSET POSITIONS OF ROBOTS
-        # 1: (2, -0.5)
-        # 2: (2, 1)
-        # 8: (2, -1)
-        # 10: (2, 0.5)
-
-        # STARTING ROBOT POSITIONS BASED ON RVIS:
-        # 1: (1.5, -1)
-        # 2: (2, 1)
-        # 8: (1.5, -1)
-        # 10: (2, 1)
+    def move_to_ref_point(self):
 
 
         goal = Point()
-
-        if direction == 'towards' and grouping == "disperse": # in test_df.iloc[row][column]:
-            # START POSITIONS
-            # OFFSET COORDINATE OF ROBOTS vs CURRENT POSITIONS IN RVIZ --> OFFSET EQUATION:
-            # 1: (2, -0.5) vs. (1.5, -1) -->  OFFSET = (goalB.x + 0.5, goalB.y + 0.5)
-            # 2: (2, 1) vs. (2, 1) --> OFFSET = (goalB.x, goalB.y)
-            # 8: (2, -1) vs. (1.5, -1) --> OFFSET = (goalB.x + 0.5, goalB.y)
-            # 10: (2, 0.5) vs. (2, 1) --> OFFSET = (goalB.x, goalB.y - 0.5)
-
-
-
-            # FINAL POSITIONS
-            # 1: (4, -0.5) vs. (3.5, -1) 
-            # 2: (4, 1) vs. (4, 1) 
-            # 8: (4, -1) vs. (3.5, -1) 
-            # 10: (4, 0.5) vs. (4, 1) 
-
-            # # FOR ROBOTS 1 and 8
-            # goal.x = self.ref_point[0] - 0.5 # get to (3.5, -1) in RVIZ
-            # goal.y = -1 # 1: (offset[1] - 0.5), 8: (offset[1])
-
-            # FOR ROBOTS 2 and 10
-            goal.x = self.ref_point[0]
-            goal.y = 1 # 2: offset[1], 10: (offset[1] + 0.5)
-
-
-
-        elif direction == 'towards' and grouping == "clump": # in test_df.iloc[row][column]:
-
-            # OFFSET COORDINATE OF ROBOTS vs CURRENT POSITIONS IN RVIZ --> OFFSET EQUATION:
-            # 1: (2, -0.5) vs. (1.5, -1) 
-            # 2: (2, 1) vs. (2, 1) 
-            # 8: (2, -1) vs. (1.5, -1) 
-            # 10: (2, 0.5) vs. (2, 1) 
-
-            # FINAL POSITIONS
-            # 1: (3.5, -0.25) vs. (3, -0.75) 
-            # 2: (4, 0.5) vs. (4, 0.5) 
-            # 8: (4, -0.5) vs. (3.5, -0.5) 
-            # 10: (3.5, 0.25) vs. (3, 0.75) 
-
-            # # FOR ROBOT 1
-            # goal.x = self.ref_point[0] - 1 
-            # goal.y = self.offset[1] - 0.25 # -0.5 - 0.25
-
-            # # FOR ROBOT 8 
-            # goal.x = self.ref_point[0] - 0.5 # - self.offset[0]
-            # goal.y = self.offset[1] + 0.5 # 
-
-            # # ROBOT 10
-            # goal.x = self.ref_point[0] - 0.5 # 4 - 0.5 = 3.5
-            # goal.y = self.offset[1] + 0.25 # 0.5 + 0.25 = 0.75
-
-            # ROBOT 2
-            goal.x = self.ref_point[0] # 4
-            goal.y = self.offset[1] - 0.5 # 1 - 0.5 = 0.5
-
-
-        elif direction == 'away' and grouping == "disperse": # in test_df.iloc[row][column]:
-
-
-            # OFFSET COORDINATE OF ROBOTS vs CURRENT POSITIONS IN RVIZ --> OFFSET EQUATION:
-            # 1: (2, -0.5) vs. (1.5, -1) 
-            # 2: (2, 1) vs. (2, 1) 
-            # 8: (2, -1) vs. (1.5, -1) 
-            # 10: (2, 0.5) vs. (2, 1) 
-
-            # FINAL POSITIONS
-            # 1: (1.75, -0.5) vs. (1.25, -1) 
-            # 2: (1.75, 1) vs. (1.75, 1) 
-            # 8: (1.75, -1) vs. (1.25, -1) 
-            # 10: (1.75, 0.5) vs. (1.75, 1)
-            
-            # FOR ROBOT 2
-            goal.x = self.offset[0] - 0.25 # 
-            goal.y = self.offset[1] # want to equal 1
-
-            # # FOR ROBOT 1
-            # goal.x = self.offset[0] - 0.25
-            # goal.y = self.offset[1] - 0.5
-
-            # # FOR ROBOT 8
-            # goal.x = self.offset[0] - 0.25
-            # goal.y = self.offset[1] 
-
-            # # FOR ROBOT 10
-            # goal.x = self.offset[0] - 0.25
-            # goal.y = self.offset[1] + 0.5 # want to equal -1
-
-
-
-        elif direction == 'away' and grouping == "clump":
-
-
-            # OFFSET COORDINATE OF ROBOTS vs CURRENT POSITIONS IN RVIZ --> OFFSET EQUATION:
-            # 1: (2, -0.5) vs. (1.5, -1) 
-            # 2: (2, 1) vs. (2, 1) 
-            # 8: (2, -1) vs. (1.5, -1) 
-            # 10: (2, 0.5) vs. (2, 1) 
-
-            # FINAL POSITIONS
-            # 1: (1.9, -0.5) vs. (1.4, -1) 
-            # 2: (1.5, 0.5) vs. (1.5, 0.5) 
-            # 8: (1.5, -0.5) vs. (1, -0.5) 
-            # 10: (1.9, 0.5) vs. (1.9, 1)
-
-
-            # FOR ROBOT 1
-            # goal.x = self.offset[0] - 0.6 # 2 - 0.6 = 1.4
-            # goal.y = self.offset[1] - 0.5 # want to equal 0.5
-
-
-            # FOR ROBOTS 2
-            goal.x = self.offset[0] - 0.5 
-            goal.y = self.offset[1] - 0.5
-
-
-            # FOR ROBOTS 8
-            # goal.x = self.offset[0] - 0.5
-            # goal.y = self.offset[1] + 0.5
-
-            # # FOR ROBOT 10
-            # goal.x = self.offset[0] - 0.1
-            # goal.y = self.offset[1] + 0.5 # want to equal -0.5
-
-        # else:
-        #     goal.x = 1
-        #     goal.y = 0
 
         response = raw_input("Are you ready for act 2? ")
 
         self.mover.move_to_goal_point(goal)
         self.mover.correct_orientation(goal)
 
+    def triangle(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
 
+        # Retrieves the info required to compute
+        triangleInfo = [shape, x_ref, y_ref, side_length, num_rob, orientation]
 
+        if triangleInfo[3] % 2 == 0:
+            # We have an even number of robots
 
-    def entrance(self, grouping):
-        goalA = Point()
-        goalB = Point()
-        goalC = Point()
+            robotNum = math.ceil(float(triangleInfo[3]) / 2)
 
-        # Move to the side
-        if grouping == "clump":
-            goalA.x = 0
-            goalA.y = 1
+            triangleGoal = np.zeros(int(robotNum) * 2)
 
-            # move to the front
-            goalB.x = 2
-            goalB.y = 1
+            # starting from the left side
+            triangleGoal[0] = float(triangleInfo[0])
+            bottomEndPoint = float(triangleInfo[1])
+            triangleGoal[1] = bottomEndPoint
 
-            # move back to the side
-            goalC.x = 2
-            goalC.y = 0
+            i = 2
+            while (i < len(triangleGoal)):
+                triangleGoal[i] = float(triangleInfo[0])  # Plugs in x spot
+                i += 1  # Moved to y spot
 
-            goals = [goalA, goalB, goalC]
+                # Calculates new y spot
+                bottomEndPoint += (float(triangleInfo[2]) / (float(robotNum) - 1))  # Adding length using Thales theorem
+                triangleGoal[i] = bottomEndPoint
+                i += 1  # moves back to x spot
 
+            line2 = triangleGoal
 
-            # Loop through all the goals and move to the positions
-            for goal in goals:
-                self.mover.move_to_goal_point(goal)
+            # For the other side of the triangle line
 
-            # correct the orientation with respect to the last goal point
-            self.mover.correct_orientation(goalC)
-            # set offset to the last goal point
-            # Added offset number for x and y will vary for different robots
-            # OFFSET = (goalB.x, goalB.y - 0.5) for robot 8 and 10
-            # OFFSET = (goalB.x, goalB.y + 0.5) for robots 1 and 2
-            self.offset = (goalC.x, goalC.y + 0.5)
+            numPoints = len(line2)
+            for j in range(0, numPoints, 2):
+                x = line2[j]
+                y = line2[j + 1]
+                ox = triangleInfo[0]
+                oy = triangleInfo[1]
+
+                qx, qy = self.rotate_around_point(x, y, ox, oy, -45)
+
+                line2[j] = qx
+                line2[j + 1] = qy
+
+            # For the original side of the triangle line
+
+            numPoints = len(triangleGoal)
+            for j in range(0, numPoints, 2):
+                x = triangleGoal[j]
+                y = triangleGoal[j + 1]
+                ox = triangleInfo[0]
+                oy = triangleInfo[1]
+
+                qx, qy = self.rotate_around_point(x, y, ox, oy, 45)
+
+                triangleGoal[j] = qx
+                triangleGoal[j + 1] = qy
+
+            line2_trim = line2[2:]
+            triangleGoal = triangleGoal[2:]
+
+            np.append(triangleGoal, line2_trim)
 
         else:
-            # ROBOTS 2 and 10
-            goalA.x = 0
-            goalA.y = 1
+            # We have an odd number of robots
 
-            # move to the front
-            goalB.x = 2
-            goalB.y = 1
+            robotNum = math.ceil(float(triangleInfo[3]) / 2)
 
-            # ROBOTS 1 and 8
-            # goalA.y = -1
-            # goalB.x = 1.5 and goalB.y = -1
+            triangleGoal = np.zeros(int(robotNum) * 2)
 
-            goals = [goalA, goalB]
+            # starting from the left side
+            triangleGoal[0] = float(triangleInfo[0])
+            bottomEndPoint = float(triangleInfo[1])
+            triangleGoal[1] = bottomEndPoint
 
-            # Loop through all the goals and move to the positions
-            for goal in goals:
-                self.mover.move_to_goal_point(goal)
+            i = 2
+            while (i < len(triangleGoal)):
+                triangleGoal[i] = float(triangleInfo[0])  # Plugs in x spot
+                i += 1  # Moved to y spot
 
-            # correct the orientation with respect to the last goal point
-            self.mover.correct_orientation(goalB)
+                # Calculates new y spot
+                bottomEndPoint += (float(triangleInfo[2]) / (float(robotNum) - 1))  # Adding length using Thales theorem
+                triangleGoal[i] = bottomEndPoint
+                i += 1  # moves back to x spot
 
-            # OFFSET COORDINATE OF ROBOTS vs CURRENT POSITIONS IN RVIZ --> OFFSET EQUATION:
-            # 1: (2, -0.5) vs. (1.5, -1) -->  OFFSET = (goalB.x + 0.5, goalB.y + 0.5)
-            # 2: (2, 1) vs. (2, 1) --> OFFSET = (goalB.x, goalB.y)
-            # 8: (2, -1) vs. (1.5, -1) --> OFFSET = (goalB.x + 0.5, goalB.y)
-            # 10: (2, 0.5) vs. (2, 1) --> OFFSET = (goalB.x, goalB.y - 0.5)
-            
-            self.offset = (goalB.x, goalB.y) # TO FIX MATH EVENTUALLY
+            line2 = triangleGoal
 
-        # ROBOT 1 OFFSET
-        # goalC.x + 0.5, goalC.y + 0.5
+            # For the other side of the triangle line
 
-        # ROBOT 8 OFFSET:
-        # goalC.x + 0.5, goalC.y - 0.5
+            numPoints = len(line2)
+            for j in range(0, numPoints, 2):
+                x = line2[j]
+                y = line2[j + 1]
+                ox = triangleInfo[0]
+                oy = triangleInfo[1]
 
+                qx, qy = self.rotate_around_point(x, y, ox, oy, -45)
 
+                line2[j] = qx
+                line2[j + 1] = qy
 
+            # For the original side of the triangle line
 
+            numPoints = len(triangleGoal)
+            for j in range(0, numPoints, 2):
+                x = triangleGoal[j]
+                y = triangleGoal[j + 1]
+                ox = triangleInfo[0]
+                oy = triangleInfo[1]
 
+                qx, qy = self.rotate_around_point(x, y, ox, oy, 45)
+
+                triangleGoal[j] = qx
+                triangleGoal[j + 1] = qy
+
+            line2_trim = line2[2:]
+
+            np.append(triangleGoal, line2_trim)
+
+        # Rotates the shape based on user input - No rotation down orientation default
+        numPoints = len(triangleGoal)
+        for j in range(0, numPoints, 2):
+            x = triangleGoal[j]
+            y = triangleGoal[j + 1]
+            ox = triangleInfo[0]
+            oy = triangleInfo[1]
+
+            qx, qy = self.rotate_around_point(x, y, ox, oy, triangleInfo[4])
+
+            triangleGoal[j] = qx
+            triangleGoal[j + 1] = qy
+
+        return triangleGoal
+
+    def line(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
+
+        # Retrieves the info required to compute
+        lineInfo = [shape, x_ref, y_ref, side_length, num_rob, orientation]
+
+        lineGoal = np.zeros(int(lineInfo[3]) * 2)
+
+        # Vertical Config
+        if lineInfo[4] == 0:
+            # starting from the left side
+            lineGoal[0] = float(lineInfo[0])
+            bottomEndPoint = float(lineInfo[1]) - (float(lineInfo[2]) / 2)
+            lineGoal[1] = bottomEndPoint
+
+            i = 2
+            while (i < len(lineGoal)):
+                lineGoal[i] = float(lineInfo[1])  # Plugs in x spot
+                i += 1  # Moved to y spot
+
+                # Calculates new y spot
+                bottomEndPoint += (float(lineInfo[2]) / (float(lineInfo[3]) - 1))  # Adding length using Thales theorem
+                lineGoal[i] = bottomEndPoint
+                i += 1  # moves back to x spot
+
+            return lineGoal
+
+        # Horizontal Orientation
+        elif lineInfo[4] == 90:
+            # starting from the left side
+            leftEndPoint = float(lineInfo[0]) - (float(lineInfo[2]) / 2)
+            lineGoal[0] = leftEndPoint
+            lineGoal[1] = float(lineInfo[1])
+
+            i = 2
+            while (i < len(lineGoal)):
+                leftEndPoint += (float(lineInfo[2]) / (float(lineInfo[3]) - 1))  # Adding length using Thales theorem
+                lineGoal[i] = leftEndPoint
+                i += 1  # Moved to y spot
+
+                # Calculates new y spot
+                lineGoal[i] = float(lineInfo[1])  # Plugs in x spot
+                i += 1  # moves back to x spot
+
+            return lineGoal
+
+        # Custom Orientation
+        else:
+            # starting from the left side
+            lineGoal[0] = float(lineInfo[0])
+            bottomEndPoint = float(lineInfo[1]) - (float(lineInfo[2]) / 2)
+            lineGoal[1] = bottomEndPoint
+
+            i = 2
+            while (i < len(lineGoal)):
+                lineGoal[i] = float(lineInfo[0])  # Plugs in x spot
+                i += 1  # Moved to y spot
+
+                # Calculates new y spot
+                bottomEndPoint += (float(lineInfo[2]) / (float(lineInfo[3]) - 1))  # Adding length using Thales theorem
+                lineGoal[i] = bottomEndPoint
+                i += 1  # moves back to x spot
+
+            numPoints = len(lineGoal)
+            for j in range(0, numPoints, 2):
+                x = lineGoal[j]
+                y = lineGoal[j + 1]
+                ox = lineInfo[0]
+                oy = lineInfo[1]
+
+                qx, qy = self.rotate_around_point(x, y, ox, oy, lineInfo[4])
+
+                lineGoal[j] = qx
+                lineGoal[j + 1] = qy
+
+            return lineGoal
 
 
 
@@ -362,8 +277,8 @@ if __name__ == '__main__':
     try:
         rospy.init_node('please_work',anonymous=True)
         mover = local_plan.Movement()
-        initiator = Initiator(mover)
 
+        initiator = Initiator(mover
         ########################################
         #
         #       SOCKET CONNECTION FOR BUTTON
@@ -378,7 +293,18 @@ if __name__ == '__main__':
         #row, column= input('Row, Column #s:').split()
 
 
-        scenario = int(input('What scenario # are you running?'))
+        scenario = input('What shape would you like?').lower()
+
+        # THE REFERENCE POINT IS RELATIVE TO ROBOT 0, ROBOT 0 IS CONSIDERED 0,0
+        ref_point_input = input('Where would you like the shape to go? Ex. 3,3')
+        ref_point = [int(x) for x in ref_point_input.split(',') if x.strip()]
+        x_ref_final = ref_point[0]
+        y_ref_final = ref_point[1]
+
+        # Orientation is relative to the reference point so that the
+        #### formation is created pointing to the ref point then the robots
+        #### all just have to move forward until robot 0 is at the ref point
+        orientation = atan2(y_ref,x_ref)
 
         ready=raw_input('Are you ready? (yes/no)').lower()
 
@@ -389,9 +315,8 @@ if __name__ == '__main__':
 
 
 
-        if scenario == 1:
-            # Initiator == robot
-            # toWhom == Person A/B
+        if scenario == 'triangle':
+
             initiator.entrance("clump")
             time.sleep(1)
             initiator.set_clump_shape_goals(direction='towards',grouping='disperse')
