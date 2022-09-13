@@ -40,19 +40,31 @@ class Initiator:
         self.ref_point = (4, 0)
         self.rob_id = 0 # all robots will be 0, 1, or 2
 
-    def get_into_formation(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
+    def get_into_formation(self,shape, x_ref=0,y_ref=0,side_length,num_rob,orientation):
 
         if shape == 'triangle':
             goals = self.triangle(shape, x_ref,y_ref,side_length,num_rob,orientation)
         elif shape == 'line':
             goals = self.line(shape, x_ref, y_ref, side_length, num_rob, orientation)
+        else:
+            print("Not a currently supported shape")
+
+        if self.rob_id == 0:
+            x_goal = goals[0]
+            y_goal = goals[1]
+        elif self.rob_id == 1:
+            x_goal = goals[2]
+            y_goal = goals[3]
+        elif self.rob_id == 2:
+            x_goal = goals[4]
+            y_goal = goals[5]
+        else:
+            print("There are only three robots right now")
 
 
         goal = Point()
 
-
-
-    def move_to_ref_point(self):
+    def move_to_ref_point(self,x_ref,y_ref):
 
 
         goal = Point()
@@ -278,7 +290,7 @@ if __name__ == '__main__':
         rospy.init_node('please_work',anonymous=True)
         mover = local_plan.Movement()
 
-        initiator = Initiator(mover
+        initiator = Initiator(mover)
         ########################################
         #
         #       SOCKET CONNECTION FOR BUTTON
@@ -293,13 +305,16 @@ if __name__ == '__main__':
         #row, column= input('Row, Column #s:').split()
 
 
-        scenario = input('What shape would you like?').lower()
+        shape = input('What shape would you like?').lower()
 
         # THE REFERENCE POINT IS RELATIVE TO ROBOT 0, ROBOT 0 IS CONSIDERED 0,0
         ref_point_input = input('Where would you like the shape to go? Ex. 3,3')
         ref_point = [int(x) for x in ref_point_input.split(',') if x.strip()]
-        x_ref_final = ref_point[0]
-        y_ref_final = ref_point[1]
+        x_ref = ref_point[0]
+        y_ref = ref_point[1]
+
+        # How big do you want the shape?
+        side_length = int(input('What would you like the side length of the shape? Ex. 2'))
 
         # Orientation is relative to the reference point so that the
         #### formation is created pointing to the ref point then the robots
@@ -314,62 +329,10 @@ if __name__ == '__main__':
 
 
 
+        initiator.get_into_formation(shape,x_ref,y_ref,side_length,num_rob=3,orientation)
+        next_move = input("Hit enter when all robots are in the formation")
+        initiator.move_to_ref_point(x_ref,y_ref)
 
-        if scenario == 'triangle':
-
-            initiator.entrance("clump")
-            time.sleep(1)
-            initiator.set_clump_shape_goals(direction='towards',grouping='disperse')
-
-        elif scenario == 2:
-            # Initiator == both
-            # toWhom == Person A/B
-            initiator.entrance("clump")
-            time.sleep(1)
-            initiator.set_clump_shape_goals(direction='towards',grouping='clump')
-
-        elif scenario == 3:
-            # Initiator == person
-            # toWhom == Person A/B
-            initiator.entrance("clump")
-            time.sleep(1)
-            initiator.set_clump_shape_goals(direction='away',grouping='disperse')
-
-        elif scenario == 4:
-            initiator.entrance("clump")
-            time.sleep(1)
-            initiator.set_clump_shape_goals(direction='away',grouping='clump')
-
-        
-        elif scenario == 5:
-            # Initiator == robot
-            # toWhom == Person A/B
-            initiator.entrance("disperse")
-            time.sleep(1) # may need to adjust to be greater for robots 1 and 8
-            initiator.set_disperse_shape_goals(direction='towards',grouping='disperse')
-
-        elif scenario == 6:
-            # Initiator == both
-            # toWhom == Person A/B
-            initiator.entrance("disperse")
-            time.sleep(1) # may need to adjust to be greater for robots 1 and 8
-            initiator.set_disperse_shape_goals(direction='towards',grouping='clump')
-
-        elif scenario == 7:
-            # Initiator == person
-            # toWhom == Person A/B
-            initiator.entrance("disperse")
-            time.sleep(1) # may need to adjust to be greater for robots 1 and 8
-            initiator.set_disperse_shape_goals(direction='away',grouping='disperse')
-
-        elif scenario == 8:
-            initiator.entrance("disperse")
-            time.sleep(1)
-            initiator.set_disperse_shape_goals(direction='away',grouping='clump')
-
-
-
-        # mover.return_to_starting_pos()
 
     except rospy.ROSInterruptException:
         rospy.loginfo("Didn't work, so cry")
