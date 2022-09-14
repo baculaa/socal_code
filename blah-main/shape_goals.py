@@ -66,14 +66,18 @@ class Initiator:
             x_ref = 0 - x_offset
             y_ref = 0 - y_offset
 
-        if shape == 'up triangle':
+        if shape == 1:
+            # up triangle
             goals = self.triangle(shape, x_ref,y_ref,side_length,num_rob,orientation)
-        elif shape == 'down triangle':
+        elif shape == 2:
+            # down triangle
             goals = self.triangle(shape, x_ref, y_ref, side_length, num_rob, orientation = orientation + 180)
-        elif shape == 'vertical line':
+        elif shape == 3:
+            # vertical line
+            goals = self.line(shape, x_ref, y_ref, side_length, num_rob, orientation = orientation + 90)
+        elif shape == 4:
+            # horizontal line
             goals = self.line(shape, x_ref, y_ref, side_length, num_rob, orientation)
-        elif shape == 'horizontal line':
-            goals = self.line(shape, x_ref, y_ref, side_length, num_rob, oreintation = orientation + 90)
         else:
             print("Not a currently supported shape")
 
@@ -360,21 +364,10 @@ if __name__ == '__main__':
         mover = local_plan.Movement()
 
         initiator = Initiator(mover)
-        ########################################
-        #
-        #       SOCKET CONNECTION FOR BUTTON
-        #
-        ########################################
 
 
 
-
-        # test_data=pd.read_csv('test.csv')
-        # test_df=pd.DataFrame(data=test_data)
-        #row, column= input('Row, Column #s:').split()
-
-
-        shape = input('What shape would you like? /n Options: up triangle, down triangle, vertical line, horizontal line').lower()
+        shape = int(input('What shape would you like? Type the number /n Options: 1) up triangle, 2) down triangle, 3) vertical line, 4) horizontal line'))
 
         # THE REFERENCE POINT IS RELATIVE TO ROBOT 0, ROBOT 0 IS CONSIDERED 0,0
         ref_point_input = input('Where would you like the shape to go? Ex. 3,3')
