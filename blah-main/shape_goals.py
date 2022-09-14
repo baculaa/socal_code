@@ -73,7 +73,7 @@ class Initiator:
         elif shape == 'vertical line':
             goals = self.line(shape, x_ref, y_ref, side_length, num_rob, orientation)
         elif shape == 'horizontal line':
-            goals = self.line(shape, x_ref, y_ref, side_length, num_rob, orientation + 90)
+            goals = self.line(shape, x_ref, y_ref, side_length, num_rob, oreintation = orientation + 90)
         else:
             print("Not a currently supported shape")
 
@@ -95,13 +95,15 @@ class Initiator:
         goal.Y = y_goal
 
         self.mover.move_to_goal_point(goal)
-        self.mover.correct_orientation(goal)
         self.mover.final_formation_orientation(orientation)
 
 
-    def reset_origin(self):
-        pass
-        # help idk how to do this
+    def reset_to_home(self):
+        goal = Point()
+        goal.X = 0
+        goal.Y = 0
+        self.mover.move_to_goal_point(goal)
+        self.mover.final_formation_orientation(0)
 
 
     def move_to_ref_point(self,x_ref,y_ref):
