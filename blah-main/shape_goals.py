@@ -105,9 +105,12 @@ class Initiator:
 
 
     def move_to_ref_point(self,x_ref,y_ref):
+        ref_point = np.array((x_ref,y_ref))
+        fwd_dist = np.linalg.norm(ref_point)
+
         goal = Point()
-        goal.X = x_ref
-        goal.Y = y_ref
+        goal.X = fwd_dist
+        goal.Y = 0
 
         self.mover.move_to_goal_point(goal)
 
