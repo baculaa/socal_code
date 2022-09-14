@@ -40,22 +40,40 @@ class Initiator:
         self.ref_point = (4, 0)
         self.rob_id = 0 # all robots will be 0, 1, or 2
 
-    def get_into_formation(self,shape, x_ref,y_ref,side_length,num_rob,orientation):
+    def get_into_formation(self,shape, x_ref,y_ref,side_length):
+        # Orientation is relative to the reference point so that the
+        #### formation is created pointing to the ref point then the robots
+        #### all just have to move forward until robot 0 is at the ref point
+        orientation = atan2(y_ref, x_ref)
 
-        # if self.rob_id == 0:
-        #     x_ref = 0
-        #     y_ref = 0
-        # elif self.rob_id == 1:
-        #     x_ref = ????
-        #     y_ref = ????
-        # else:
-        #     x_ref = ????
-        #     y_ref = ????
+        num_rob = 3
 
-        if shape == 'triangle':
+        #### ROBOTS WILL BE LINED UP 0 1 2
+        if self.rob_id == 0:
+            x_offset = 0
+            y_offset = -0.5
+            x_ref = 0 - x_offset
+            y_ref = 0 - y_offset
+
+        elif self.rob_id == 1:
+            x_offset = 0
+            y_offset = 0
+            x_ref = 0 - x_offset
+            y_ref = 0 - y_offset
+        else:
+            x_offset = 0
+            y_offset = 0.5
+            x_ref = 0 - x_offset
+            y_ref = 0 - y_offset
+
+        if shape == 'up triangle':
             goals = self.triangle(shape, x_ref,y_ref,side_length,num_rob,orientation)
-        elif shape == 'line':
+        elif shape == 'down triangle':
+            goals = self.triangle(shape, x_ref, y_ref, side_length, num_rob, orientation = orientation + 180)
+        elif shape == 'vertical line':
             goals = self.line(shape, x_ref, y_ref, side_length, num_rob, orientation)
+        elif shape == 'horizontal line':
+            goals = self.line(shape, x_ref, y_ref, side_length, num_rob, orientation + 90)
         else:
             print("Not a currently supported shape")
 
@@ -326,7 +344,7 @@ if __name__ == '__main__':
         #row, column= input('Row, Column #s:').split()
 
 
-        shape = input('What shape would you like?').lower()
+        shape = input('What shape would you like? /n Options: up triangle, down triangle, vertical line, horizontal line').lower()
 
         # THE REFERENCE POINT IS RELATIVE TO ROBOT 0, ROBOT 0 IS CONSIDERED 0,0
         ref_point_input = input('Where would you like the shape to go? Ex. 3,3')
@@ -337,10 +355,8 @@ if __name__ == '__main__':
         # How big do you want the shape?
         side_length = int(input('What would you like the side length of the shape? Ex. 2'))
 
-        # Orientation is relative to the reference point so that the
-        #### formation is created pointing to the ref point then the robots
-        #### all just have to move forward until robot 0 is at the ref point
-        orientation = atan2(y_ref,x_ref)
+
+
 
         ready=raw_input('Are you ready? (yes/no)').lower()
 
@@ -350,7 +366,7 @@ if __name__ == '__main__':
 
 
 
-        initiator.get_into_formation(shape,x_ref,y_ref,side_length,num_rob=3,orientation)
+        initiator.get_into_formation(shape,x_ref,y_ref,side_length)
         next_move = input("Hit enter when all robots are in the formation")
         initiator.move_to_ref_point(x_ref,y_ref)
 
