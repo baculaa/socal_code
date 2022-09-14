@@ -50,21 +50,21 @@ class Initiator:
 
         #### ROBOTS WILL BE LINED UP 0 1 2
         if self.rob_id == 0:
-            x_offset = 0
-            y_offset = -0.5
-            x_ref = 0 - x_offset
-            y_ref = 0 - y_offset
+            self.x_offset = 0
+            self.y_offset = -0.5
+            x_ref = 0 - self.x_offset
+            y_ref = 0 - self.y_offset
 
         elif self.rob_id == 1:
-            x_offset = 0
-            y_offset = 0
-            x_ref = 0 - x_offset
-            y_ref = 0 - y_offset
+            self.x_offset = 0
+            self.y_offset = 0
+            x_ref = 0 - self.x_offset
+            y_ref = 0 - self.y_offset
         else:
-            x_offset = 0
-            y_offset = 0.5
-            x_ref = 0 - x_offset
-            y_ref = 0 - y_offset
+            self.x_offset = 0
+            self.y_offset = 0.5
+            x_ref = 0 - self.x_offset
+            y_ref = 0 - self.y_offset
 
         if shape == 1:
             # up triangle
@@ -115,12 +115,12 @@ class Initiator:
 
 
     def move_to_ref_point(self,x_ref,y_ref):
-        ref_point = np.array((x_ref,y_ref))
-        fwd_dist = np.linalg.norm(ref_point)
+        # ref_point = np.array((x_ref,y_ref))
+        # fwd_dist = np.linalg.norm(ref_point)
 
         goal = Point()
-        goal.x = fwd_dist
-        goal.y = 0
+        goal.x = x_ref - self.x_offset
+        goal.y = y_ref - self.y_offset
 
         rospy.loginfo("Moving to ref goal")
         self.mover.move_to_goal_avoidance(goal)
