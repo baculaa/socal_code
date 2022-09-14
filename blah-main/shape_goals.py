@@ -38,7 +38,7 @@ class Initiator:
     def __init__(self,mover):
         self.mover = mover
         # self.ref_point = (4, 0)
-        self.rob_id = 2 # all robots will be 0, 1, or 2
+        self.rob_id = 1 # all robots will be 0, 1, or 2
 
     def get_into_formation(self,shape, x_ref,y_ref,side_length):
         # Orientation is relative to the reference point so that the
@@ -50,8 +50,8 @@ class Initiator:
 
         #### ROBOTS WILL BE LINED UP 0 1 2
         if self.rob_id == 0:
-            self.y_offset = 0
-            self.x_offset = -0.5
+            self.x_offset = 0
+            self.y_offset = -0.5
             x_ref = 0 - self.x_offset
             y_ref = 0 - self.y_offset
 
@@ -61,8 +61,8 @@ class Initiator:
             x_ref = 0 - self.x_offset
             y_ref = 0 - self.y_offset
         else:
-            self.y_offset = 0
-            self.x_offset = 0.5
+            self.x_offset = 0
+            self.y_offset = 0.5
             x_ref = 0 - self.x_offset
             y_ref = 0 - self.y_offset
 
@@ -154,8 +154,8 @@ class Initiator:
 
     def triangle(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
 
-        triangleGoal_base = [0,0,0,side_length,0,0]
-        triangleGoal_base2 = [0,side_length,0,0,0,side_length]
+        triangleGoal_base = [0,self.y_offset,side_length,0,0,self.y_offset]
+        triangleGoal_base2 = [side_length,self.y_offset,0,0,side_length,self.y_offset]
         if shape == 2:
             goal_rot1 = self.rotate_around_point(triangleGoal_base[0],triangleGoal_base[1],0,0,orientation)
             goal_rot2 = self.rotate_around_point(triangleGoal_base[2],triangleGoal_base[3],0,0,orientation)
