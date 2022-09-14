@@ -6,7 +6,7 @@ import random
 import time
 import socket
 import sys
-
+import numpy as np
 
 import rospy
 import math
@@ -35,10 +35,10 @@ from math import atan2
 #
 #######################################
 class Initiator:
-    def __init__(self):
-
-        self.ref_point = (4, 0)
-        self.rob_id = 0 # all robots will be 0, 1, or 2
+    def __init__(self,mover):
+        self.mover = mover
+        # self.ref_point = (4, 0)
+        self.rob_id = 1 # all robots will be 0, 1, or 2
 
     def get_into_formation(self,shape, x_ref,y_ref,side_length):
         # Orientation is relative to the reference point so that the
@@ -95,18 +95,22 @@ class Initiator:
 
 
         goal = Point()
-        goal.X = x_goal
-        goal.Y = y_goal
+        goal.x = x_goal
+        goal.y = y_goal
 
-        self.mover.move_to_goal_point(goal)
+        rospy.loginfo("Going to formation")
+        self.mover.move_to_goal_avoidance(goal)
+        rospy.loginfo("Rotating to face ref goal: " + str(orientation))
         self.mover.final_formation_orientation(orientation)
 
 
     def reset_to_home(self):
         goal = Point()
-        goal.X = 0
-        goal.Y = 0
-        self.mover.move_to_goal_point(goal)
+        goal.x = 0
+        goal.y = 0
+
+        rospy.loginfo("Going home")
+        self.mover.move_to_goal_avoidance(goal)
         self.mover.final_formation_orientation(0)
 
 
@@ -115,10 +119,11 @@ class Initiator:
         fwd_dist = np.linalg.norm(ref_point)
 
         goal = Point()
-        goal.X = fwd_dist
-        goal.Y = 0
+        goal.x = fwd_dist
+        goal.y = 0
 
-        self.mover.move_to_goal_point(goal)
+        rospy.loginfo("Moving to ref goal")
+        self.mover.move_to_goal_avoidance(goal)
 
     def rotate_around_point(self, x, y, ox, oy, degrees):
 
@@ -367,16 +372,16 @@ if __name__ == '__main__':
 
 
 
-        shape = int(input('What shape would you like? Type the number /n Options: 1) up triangle, 2) down triangle, 3) vertical line, 4) horizontal line'))
+        shape = int(input('What shape would you like? Type the number Options: 1) up triangle, 2) down triangle, 3) vertical line, 4) horizontal line: '))
 
         # THE REFERENCE POINT IS RELATIVE TO ROBOT 0, ROBOT 0 IS CONSIDERED 0,0
-        ref_point_input = input('Where would you like the shape to go? Ex. 3,3')
-        ref_point = [int(x) for x in ref_point_input.split(',') if x.strip()]
+        ref_point_input = input('Where would you like the shape to go? Ex. 3,3: ')
+        ref_point = ref_point_input
         x_ref = ref_point[0]
         y_ref = ref_point[1]
 
         # How big do you want the shape?
-        side_length = int(input('What would you like the side length of the shape? Ex. 2'))
+        side_length = int(input('What would you like the side length of the shape? Ex. 3: '))
 
 
 
@@ -385,13 +390,15 @@ if __name__ == '__main__':
 
         while ready == 'no':
             time.sleep(5)
-            ready=input('Are you ready?')
+            ready=raw_input('Are you ready?')
 
 
 
         initiator.get_into_formation(shape,x_ref,y_ref,side_length)
-        next_move = input("Hit enter when all robots are in the formation")
+        raw_input("Hit enter when all robots are in the formation")
         initiator.move_to_ref_point(x_ref,y_ref)
+        raw_input("Hit enter to return home")
+        initiator.reset_to_home()
 
 
     except rospy.ROSInterruptException:

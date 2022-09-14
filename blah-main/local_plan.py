@@ -84,6 +84,7 @@ class Movement:
         reached = False
         x = curGoal.x
         y = curGoal.y
+        reached = False
         rospy.loginfo("Inside move_to_goal_point()")
         while not rospy.is_shutdown() and not reached:
             inc_x = x - self.cur_x
@@ -218,11 +219,13 @@ class Movement:
             self.pub.publish(self.move)
 
     def final_formation_orientation(self,orientation):
+        rospy.loginfo("Rotating to: "+str(orientation))
         while abs(self.theta - orientation) > self.delta*0.5:
+            rospy.loginfo("Need to rotate: "+str(abs(self.theta - orientation)))
             if self.theta < orientation:
                 self.move.linear.x = 0.0
                 self.move.angular.z = self.rot_speed  # 0.25
             else:
                 self.move.linear.x = 0.0
                 self.move.angular.z = -self.rot_speed
-
+            self.pub.publish(self.move)
