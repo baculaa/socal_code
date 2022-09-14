@@ -119,8 +119,8 @@ class Initiator:
         fwd_dist = np.linalg.norm(ref_point)
 
         goal = Point()
-        goal.x = fwd_dist
-        goal.y = 0
+        goal.x = x_ref
+        goal.y = y_ref
 
         rospy.loginfo("Moving to ref goal")
         self.mover.move_to_goal_avoidance(goal)
@@ -154,7 +154,7 @@ class Initiator:
 
     def triangle(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
 
-        triangleGoal_base = [-side_length,0,0,0,-side_length]
+        triangleGoal_base = [-side_length,0,0,0,-side_length,0]
         if shape == 2:
             goal_rot1 = self.rotate_around_point(triangleGoal_base[0],triangleGoal_base[1],0,0,orientation)
             goal_rot2 = self.rotate_around_point(triangleGoal_base[2],triangleGoal_base[3],0,0,orientation)
