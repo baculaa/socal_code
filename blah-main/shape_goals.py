@@ -38,7 +38,7 @@ class Initiator:
     def __init__(self,mover):
         self.mover = mover
         # self.ref_point = (4, 0)
-        self.rob_id = 1 # all robots will be 0, 1, or 2
+        self.rob_id = 2 # all robots will be 0, 1, or 2
 
     def get_into_formation(self,shape, x_ref,y_ref,side_length):
         # Orientation is relative to the reference point so that the
@@ -119,8 +119,8 @@ class Initiator:
         fwd_dist = np.linalg.norm(ref_point)
 
         goal = Point()
-        goal.x = x_ref
-        goal.y = y_ref
+        goal.x = x_ref+mover.cur_x
+        goal.y = y_ref+mover.cur_y
 
         rospy.loginfo("Moving to ref goal")
         self.mover.move_to_goal_avoidance(goal)
@@ -154,15 +154,16 @@ class Initiator:
 
     def triangle(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
 
-        triangleGoal_base = [-side_length,0,0,0,-side_length,0]
+        triangleGoal_base = [0,0,side_length,0,0,0]
+        triangleGoal_base2 = [side_length,0,0,0,side_length,0]
         if shape == 2:
             goal_rot1 = self.rotate_around_point(triangleGoal_base[0],triangleGoal_base[1],0,0,orientation)
             goal_rot2 = self.rotate_around_point(triangleGoal_base[2],triangleGoal_base[3],0,0,orientation)
             goal_rot3 = self.rotate_around_point(triangleGoal_base[4],triangleGoal_base[5],0,0,orientation)
         elif shape == 1:
-            goal_rot1 = self.rotate_around_point(triangleGoal_base[0],triangleGoal_base[1],0,0,orientation+180)
-            goal_rot2 = self.rotate_around_point(triangleGoal_base[2],triangleGoal_base[3],0,0,orientation+180)
-            goal_rot3 = self.rotate_around_point(triangleGoal_base[4],triangleGoal_base[5],0,0,orientation+180)
+            goal_rot1 = self.rotate_around_point(triangleGoal_base2[0],triangleGoal_base2[1],0,0,orientation)
+            goal_rot2 = self.rotate_around_point(triangleGoal_base2[2],triangleGoal_base2[3],0,0,orientation)
+            goal_rot3 = self.rotate_around_point(triangleGoal_base2[4],triangleGoal_base2[5],0,0,orientation)
 
         triangleGoal = [goal_rot1[0],goal_rot1[1],goal_rot2[0],goal_rot2[1],goal_rot3[0],goal_rot3[1]]
 
