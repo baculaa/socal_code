@@ -154,8 +154,8 @@ class Initiator:
 
     def triangle(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
 
-        triangleGoal_base = [0,0,side_length,0,0,0]
-        triangleGoal_base2 = [side_length,0,0,0,side_length,0]
+        triangleGoal_base = [0,0,0,side_length,0,0]
+        triangleGoal_base2 = [0,side_length,0,0,0,side_length]
         if shape == 2:
             goal_rot1 = self.rotate_around_point(triangleGoal_base[0],triangleGoal_base[1],0,0,orientation)
             goal_rot2 = self.rotate_around_point(triangleGoal_base[2],triangleGoal_base[3],0,0,orientation)
@@ -171,7 +171,7 @@ class Initiator:
 
     def line(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
 
-        lineGoal_base = [0,side_length/3,0,0,0,-side_length/3]
+        lineGoal_base = [side_length/3,0,0,0,-side_length/3,0]
 
         if shape == 4:
             goal_rot1 = self.rotate_around_point(lineGoal_base[0],lineGoal_base[1],0,0,orientation)
@@ -207,7 +207,7 @@ if __name__ == '__main__':
         y_ref = ref_point[1]
 
         # How big do you want the shape?
-        side_length = int(input('What would you like the side length of the shape? Ex. 3: '))
+        side_length = input('What would you like the side length of the shape? Ex. 3: ')
 
 
 
