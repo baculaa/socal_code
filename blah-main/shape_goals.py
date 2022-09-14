@@ -50,8 +50,8 @@ class Initiator:
 
         #### ROBOTS WILL BE LINED UP 0 1 2
         if self.rob_id == 0:
-            self.x_offset = 0
-            self.y_offset = -0.5
+            self.y_offset = 0
+            self.x_offset = -0.5
             x_ref = 0 - self.x_offset
             y_ref = 0 - self.y_offset
 
@@ -61,8 +61,8 @@ class Initiator:
             x_ref = 0 - self.x_offset
             y_ref = 0 - self.y_offset
         else:
-            self.x_offset = 0
-            self.y_offset = 0.5
+            self.y_offset = 0
+            self.x_offset = 0.5
             x_ref = 0 - self.x_offset
             y_ref = 0 - self.y_offset
 
