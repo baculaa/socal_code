@@ -116,7 +116,32 @@ class Initiator:
 
         self.mover.move_to_goal_point(goal)
 
+    def rotate_around_point(self, x, y, ox, oy, degrees):
 
+        # INPUTS:
+        ## # x, y = this is our point in the geometrical shape, the point we want to rotate
+        ## # ox, oy =  this is our reference point
+        ## # radians = this is how much we want to rotate by in radians
+        x = float(x)
+        y = float(y)
+        ox = float(ox)
+        oy = float(oy)
+        degrees = float(degrees)
+        # OUTPUTS:
+        ## # qx, qy = this is our point rotated about our ox, oy reference point
+
+        """Rotate a point around a given point.
+
+        I call this the "low performance" version since it's recalculating
+        the same values more than once [cos(radians), sin(radians), x-ox, y-oy).
+        It's more readable than the next function, though.
+        """
+        radians = (degrees * math.pi) / 180
+
+        qx = ox + math.cos(radians) * (x - ox) + math.sin(radians) * (y - oy)
+        qy = oy + -math.sin(radians) * (x - ox) + math.cos(radians) * (y - oy)
+
+        return qx, qy
 
     def triangle(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
 
