@@ -38,7 +38,7 @@ class Initiator:
     def __init__(self,mover):
         self.mover = mover
         # self.ref_point = (4, 0)
-        self.rob_id = 1 # all robots will be 0, 1, or 2
+        self.rob_id = 2 # all robots will be 0, 1, or 2
 
     def get_into_formation(self,shape, x_ref,y_ref,side_length):
         # Orientation is relative to the reference point so that the
@@ -51,7 +51,7 @@ class Initiator:
         #### ROBOTS WILL BE LINED UP 0 1 2
         if self.rob_id == 0:
             self.x_offset = 0
-            self.y_offset = -0.5
+            self.y_offset = 0.5
             x_ref = 0 - self.x_offset
             y_ref = 0 - self.y_offset
 
@@ -62,7 +62,7 @@ class Initiator:
             y_ref = 0 - self.y_offset
         else:
             self.x_offset = 0
-            self.y_offset = 0.5
+            self.y_offset = -0.5
             x_ref = 0 - self.x_offset
             y_ref = 0 - self.y_offset
 
@@ -84,7 +84,7 @@ class Initiator:
         if self.rob_id == 0:
             x_goal = goals[0] - self.x_offset
             y_goal = goals[1] - self.y_offset
-            
+
         elif self.rob_id == 1:
             x_goal = goals[2] - self.x_offset
             y_goal = goals[3] - self.y_offset
@@ -154,18 +154,18 @@ class Initiator:
 
     def triangle(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
         x1_1 = 0
-        y1_1 = 0
+        y1_1 = self.y_offset
         x2_1 = np.sqrt(side_length**2 - self.y_offset**2)
         y2_1 = 0
         x3_1 = 0
-        y3_1 = 0
+        y3_1 = self.y_offset
 
         x1_2 = np.sqrt(side_length**2 - self.y_offset**2)
-        y1_2 = 0
-        x2_2 = 0 
+        y1_2 = self.y_offset
+        x2_2 = 0
         y2_2 = 0
         x3_2 = np.sqrt(side_length**2 - self.y_offset**2)
-        y3_2 = 0
+        y3_2 = self.y_offset
 
 
         triangleGoal_base = [x1_1,y1_1,x2_1,y2_1,x3_1,y3_1]
@@ -203,7 +203,7 @@ class Initiator:
             goal_rot1 = self.rotate_around_point(lineGoal_base[0],lineGoal_base[1],0,0,90+orientation)
             goal_rot2 = self.rotate_around_point(lineGoal_base[2],lineGoal_base[3],0,0,90+orientation)
             goal_rot3 = self.rotate_around_point(lineGoal_base[4],lineGoal_base[5],0,0,90+orientation)
-        
+
         lineGoal = [goal_rot1[0],goal_rot1[1],goal_rot2[0],goal_rot2[1],goal_rot3[0],goal_rot3[1]]
 
         return lineGoal
@@ -250,5 +250,3 @@ if __name__ == '__main__':
 
     except rospy.ROSInterruptException:
         rospy.loginfo("Didn't work, so cry")
-
-
