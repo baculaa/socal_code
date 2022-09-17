@@ -149,13 +149,6 @@ class Movement:
                 reached = True
 
 
-
-            elif self.moveScan['fleft'] < 0.6 or self.moveScan['fright'] < 0.6:
-                rospy.loginfo("Fleft range is: " + str(self.moveScan['fleft']))
-                rospy.loginfo("Fright range is: " + str(self.moveScan['fleft']))
-                self.move.linear.x = 0.0
-                self.move.angular.z = 0.0
-
             elif abs(angle_to_goal - self.theta) > 0.3:  # self.delta:
                 if y > 0:
                     self.move.linear.x = 0.0
@@ -166,8 +159,14 @@ class Movement:
                     self.move.angular.z = -1 * self.rot_speed  # -0.25
 
             else:
-                self.move.linear.x = self.forward_speed  # 0.5
-                self.move.angular.z = 0.0
+                if self.moveScan['fleft'] < 0.6 or self.moveScan['fright'] < 0.6:
+                    rospy.loginfo("Fleft range is: " + str(self.moveScan['fleft']))
+                    rospy.loginfo("Fright range is: " + str(self.moveScan['fleft']))
+                    self.move.linear.x = 0.0
+                    self.move.angular.z = 0.0
+                else:
+                    self.move.linear.x = self.forward_speed  # 0.5
+                    self.move.angular.z = 0.0
 
             self.pub.publish(self.move)
             self.r.sleep()
@@ -181,7 +180,7 @@ class Movement:
         ready = raw_input("Should the robot return to the starting position (y/n)?")
 
         if ready.lower() == "y":
-            self.move_to_goal_point(startGoal)
+            self.move_to_goal_avoidance(startGoal)
         else:
             rospy.loginfo("Study complete. People didn't summon robot")
 
@@ -220,7 +219,7 @@ class Movement:
 
     def final_formation_orientation(self,orientation):
         rospy.loginfo("Rotating to: "+str(orientation))
-        while abs(self.theta - orientation) > self.delta*0.5:
+        while abs(self.theta - orientation) > self.delta*0.25:
             rospy.loginfo("Need to rotate: "+str(abs(self.theta - orientation)))
             if self.theta < orientation:
                 self.move.linear.x = 0.0
