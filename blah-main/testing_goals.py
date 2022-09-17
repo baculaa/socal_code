@@ -1,8 +1,14 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
+import math
 class GoalTest:
     def __init__(self):
-        pass
+        self.x_offset1 = 0
+        self.y_offset1 = 0.5
+        self.x_offset2 = 0
+        self.y_offset2 = 0
+        self.x_offset3 = 0
+        self.y_offset3 = -0.5
     def rotate_around_point(self, x, y, ox, oy, degrees):
 
         # INPUTS:
@@ -31,215 +37,77 @@ class GoalTest:
         return qx, qy
 
     def triangle(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
+        x1_1 = 0
+        y1_1 = self.y_offset1
+        x2_1 = np.sqrt(side_length ** 2 - self.y_offset1 ** 2)
+        y2_1 = 0
+        x3_1 = 0
+        y3_1 = self.y_offset3
 
-        # Retrieves the info required to compute
-        triangleInfo = [shape, x_ref, y_ref, side_length, num_rob, orientation]
+        x1_2 = np.sqrt(side_length ** 2 - self.y_offset1 ** 2)
+        y1_2 = self.y_offset1
+        x2_2 = 0
+        y2_2 = 0
+        x3_2 = np.sqrt(side_length ** 2 - self.y_offset1 ** 2)
+        y3_2 = self.y_offset3
 
-        if triangleInfo[3] % 2 == 0:
-            # We have an even number of robots
+        triangleGoal_base = [x1_1, y1_1, x2_1, y2_1, x3_1, y3_1]
+        triangleGoal_base2 = [x1_2, y1_2, x2_2, y2_2, x3_2, y3_2]
+        if shape == 2:
+            goal_rot1 = self.rotate_around_point(triangleGoal_base[0], triangleGoal_base[1], 0, 0, orientation)
+            goal_rot2 = self.rotate_around_point(triangleGoal_base[2], triangleGoal_base[3], 0, 0, orientation)
+            goal_rot3 = self.rotate_around_point(triangleGoal_base[4], triangleGoal_base[5], 0, 0, orientation)
+        elif shape == 1:
+            goal_rot1 = self.rotate_around_point(triangleGoal_base2[0], triangleGoal_base2[1], 0, 0, orientation)
+            goal_rot2 = self.rotate_around_point(triangleGoal_base2[2], triangleGoal_base2[3], 0, 0, orientation)
+            goal_rot3 = self.rotate_around_point(triangleGoal_base2[4], triangleGoal_base2[5], 0, 0, orientation)
 
-            robotNum = math.ceil(float(triangleInfo[3]) / 2)
+        triangleGoal = [goal_rot1[0], goal_rot1[1], goal_rot2[0], goal_rot2[1], goal_rot3[0], goal_rot3[1]]
 
-            triangleGoal = np.zeros(int(robotNum) * 2)
-
-            # starting from the left side
-            triangleGoal[0] = float(triangleInfo[0])
-            bottomEndPoint = float(triangleInfo[1])
-            triangleGoal[1] = bottomEndPoint
-
-            i = 2
-            while (i < len(triangleGoal)):
-                triangleGoal[i] = float(triangleInfo[0])  # Plugs in x spot
-                i += 1  # Moved to y spot
-
-                # Calculates new y spot
-                bottomEndPoint += (float(triangleInfo[2]) / (float(robotNum) - 1))  # Adding length using Thales theorem
-                triangleGoal[i] = bottomEndPoint
-                i += 1  # moves back to x spot
-
-            line2 = triangleGoal
-
-            # For the other side of the triangle line
-
-            numPoints = len(line2)
-            for j in range(0, numPoints, 2):
-                x = line2[j]
-                y = line2[j + 1]
-                ox = triangleInfo[0]
-                oy = triangleInfo[1]
-
-                qx, qy = self.rotate_around_point(x, y, ox, oy, -45)
-
-                line2[j] = qx
-                line2[j + 1] = qy
-
-            # For the original side of the triangle line
-
-            numPoints = len(triangleGoal)
-            for j in range(0, numPoints, 2):
-                x = triangleGoal[j]
-                y = triangleGoal[j + 1]
-                ox = triangleInfo[0]
-                oy = triangleInfo[1]
-
-                qx, qy = self.rotate_around_point(x, y, ox, oy, 45)
-
-                triangleGoal[j] = qx
-                triangleGoal[j + 1] = qy
-
-            line2_trim = line2[2:]
-            triangleGoal = triangleGoal[2:]
-
-            np.append(triangleGoal, line2_trim)
-
-        else:
-            # We have an odd number of robots
-
-            robotNum = math.ceil(float(triangleInfo[3]) / 2)
-
-            triangleGoal = np.zeros(int(robotNum) * 2)
-
-            # starting from the left side
-            triangleGoal[0] = float(triangleInfo[0])
-            bottomEndPoint = float(triangleInfo[1])
-            triangleGoal[1] = bottomEndPoint
-
-            i = 2
-            while (i < len(triangleGoal)):
-                triangleGoal[i] = float(triangleInfo[0])  # Plugs in x spot
-                i += 1  # Moved to y spot
-
-                # Calculates new y spot
-                bottomEndPoint += (float(triangleInfo[2]) / (float(robotNum) - 1))  # Adding length using Thales theorem
-                triangleGoal[i] = bottomEndPoint
-                i += 1  # moves back to x spot
-
-            line2 = triangleGoal
-
-            # For the other side of the triangle line
-
-            numPoints = len(line2)
-            for j in range(0, numPoints, 2):
-                x = line2[j]
-                y = line2[j + 1]
-                ox = triangleInfo[0]
-                oy = triangleInfo[1]
-
-                qx, qy = self.rotate_around_point(x, y, ox, oy, -45)
-
-                line2[j] = qx
-                line2[j + 1] = qy
-
-            # For the original side of the triangle line
-
-            numPoints = len(triangleGoal)
-            for j in range(0, numPoints, 2):
-                x = triangleGoal[j]
-                y = triangleGoal[j + 1]
-                ox = triangleInfo[0]
-                oy = triangleInfo[1]
-
-                qx, qy = self.rotate_around_point(x, y, ox, oy, 45)
-
-                triangleGoal[j] = qx
-                triangleGoal[j + 1] = qy
-
-            line2_trim = line2[2:]
-
-            np.append(triangleGoal, line2_trim)
-
-        # Rotates the shape based on user input - No rotation down orientation default
-        numPoints = len(triangleGoal)
-        for j in range(0, numPoints, 2):
-            x = triangleGoal[j]
-            y = triangleGoal[j + 1]
-            ox = triangleInfo[0]
-            oy = triangleInfo[1]
-
-            qx, qy = self.rotate_around_point(x, y, ox, oy, triangleInfo[4])
-
-            triangleGoal[j] = qx
-            triangleGoal[j + 1] = qy
 
         return triangleGoal
 
+
     def line(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
+        y1 = side_length / 3
+        x1 = 0
+        x2 = 0
+        y2 = 0
+        y3 = -side_length / 3
+        x3 = 0
 
-        # Retrieves the info required to compute
-        lineInfo = [shape, x_ref, y_ref, side_length, num_rob, orientation]
+        lineGoal_base = [x1, y1, x2, y2, x3, y3]
 
-        lineGoal = np.zeros(int(lineInfo[3]) * 2)
+        if shape == 4:
+            goal_rot1 = self.rotate_around_point(lineGoal_base[0], lineGoal_base[1], 0, 0, orientation)
+            goal_rot2 = self.rotate_around_point(lineGoal_base[2], lineGoal_base[3], 0, 0, orientation)
+            goal_rot3 = self.rotate_around_point(lineGoal_base[4], lineGoal_base[5], 0, 0, orientation)
 
-        # Vertical Config
-        if lineInfo[4] == 0:
-            # starting from the left side
-            lineGoal[0] = float(lineInfo[0])
-            bottomEndPoint = float(lineInfo[1]) - (float(lineInfo[2]) / 2)
-            lineGoal[1] = bottomEndPoint
+        elif shape == 3:
+            goal_rot1 = self.rotate_around_point(lineGoal_base[0], lineGoal_base[1], 0, 0, 90 + orientation)
+            goal_rot2 = self.rotate_around_point(lineGoal_base[2], lineGoal_base[3], 0, 0, 90 + orientation)
+            goal_rot3 = self.rotate_around_point(lineGoal_base[4], lineGoal_base[5], 0, 0, 90 + orientation)
 
-            i = 2
-            while (i < len(lineGoal)):
-                lineGoal[i] = float(lineInfo[1])  # Plugs in x spot
-                i += 1  # Moved to y spot
+        lineGoal = [goal_rot1[0], goal_rot1[1], goal_rot2[0], goal_rot2[1], goal_rot3[0], goal_rot3[1]]
 
-                # Calculates new y spot
-                bottomEndPoint += (float(lineInfo[2]) / (float(lineInfo[3]) - 1))  # Adding length using Thales theorem
-                lineGoal[i] = bottomEndPoint
-                i += 1  # moves back to x spot
-
-            return lineGoal
-
-        # Horizontal Orientation
-        elif lineInfo[4] == 90:
-            # starting from the left side
-            leftEndPoint = float(lineInfo[0]) - (float(lineInfo[2]) / 2)
-            lineGoal[0] = leftEndPoint
-            lineGoal[1] = float(lineInfo[1])
-
-            i = 2
-            while (i < len(lineGoal)):
-                leftEndPoint += (float(lineInfo[2]) / (float(lineInfo[3]) - 1))  # Adding length using Thales theorem
-                lineGoal[i] = leftEndPoint
-                i += 1  # Moved to y spot
-
-                # Calculates new y spot
-                lineGoal[i] = float(lineInfo[1])  # Plugs in x spot
-                i += 1  # moves back to x spot
-
-            return lineGoal
-
-        # Custom Orientation
-        else:
-            # starting from the left side
-            lineGoal[0] = float(lineInfo[0])
-            bottomEndPoint = float(lineInfo[1]) - (float(lineInfo[2]) / 2)
-            lineGoal[1] = bottomEndPoint
-
-            i = 2
-            while (i < len(lineGoal)):
-                lineGoal[i] = float(lineInfo[0])  # Plugs in x spot
-                i += 1  # Moved to y spot
-
-                # Calculates new y spot
-                bottomEndPoint += (float(lineInfo[2]) / (float(lineInfo[3]) - 1))  # Adding length using Thales theorem
-                lineGoal[i] = bottomEndPoint
-                i += 1  # moves back to x spot
-
-            numPoints = len(lineGoal)
-            for j in range(0, numPoints, 2):
-                x = lineGoal[j]
-                y = lineGoal[j + 1]
-                ox = lineInfo[0]
-                oy = lineInfo[1]
-
-                qx, qy = self.rotate_around_point(x, y, ox, oy, lineInfo[4])
-
-                lineGoal[j] = qx
-                lineGoal[j + 1] = qy
-
-            return lineGoal
+        return lineGoal
 
 if __name__ == '__main__':
     tester = GoalTest()
-    goals = tester.triangle(1, 0,0,3,3,0)
+    x_ref = 2
+    y_ref = 2
+    orientation = math.degrees(math.atan2(y_ref, x_ref))
+    print(orientation)
+    goals = tester.line(4, x_ref,y_ref,3,3,orientation)
+
+    # Initialize the figure
+    fig, ax = plt.subplots(figsize=(5, 5))
+    # Set the axis limits
+    ax.set(xlim=(-5, 5), ylim=(-5, 5))
     print(goals)
+    x = [goals[0],goals[2],goals[4]]
+    y = [goals[1], goals[3], goals[5]]
+    plt.plot(x,y,'o')
+    plt.plot(x_ref, y_ref, 'v')
+    plt.show()
+

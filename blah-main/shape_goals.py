@@ -23,7 +23,7 @@ from actionlib_msgs.msg import GoalStatus
 from geometry_msgs.msg import Pose, Point, Quaternion, Twist
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
-from math import atan2
+from math import atan2,degrees
 
 
 
@@ -44,7 +44,7 @@ class Initiator:
         # Orientation is relative to the reference point so that the
         #### formation is created pointing to the ref point then the robots
         #### all just have to move forward until robot 0 is at the ref point
-        orientation = atan2(y_ref, x_ref)
+        orientation = degrees(atan2(y_ref, x_ref))
 
         num_rob = 3
 
