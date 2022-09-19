@@ -12,6 +12,7 @@ import rospy
 import math
 import actionlib
 import local_plan # imports the Movement class from the movement.py file
+import websocket_session
 
 
 
@@ -23,10 +24,17 @@ from actionlib_msgs.msg import GoalStatus
 from geometry_msgs.msg import Pose, Point, Quaternion, Twist
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
-from math import atan2,degrees
+from math import atan2
 
 
+ROBOT_ID = 10 # TO CHANGE ON EACH COMPUTER
+HOST = '127.0.0.1'
+SERVER_PORT = 8000
 
+ROBOT_PORT_1 = 8001
+ROBOT_PORT_2 = 8002
+ROBOT_PORT_6 = 8006
+ROBOT_PORT_10 = 8010
 
 
 #######################################
@@ -38,20 +46,20 @@ class Initiator:
     def __init__(self,mover):
         self.mover = mover
         # self.ref_point = (4, 0)
-        self.rob_id = 2 # all robots will be 0, 1, or 2
+        self.rob_id = 1 # all robots will be 0, 1, or 2
 
     def get_into_formation(self,shape, x_ref,y_ref,side_length):
         # Orientation is relative to the reference point so that the
         #### formation is created pointing to the ref point then the robots
         #### all just have to move forward until robot 0 is at the ref point
-        orientation = degrees(atan2(y_ref, x_ref))
+        orientation = atan2(y_ref, x_ref)
 
         num_rob = 3
 
         #### ROBOTS WILL BE LINED UP 0 1 2
         if self.rob_id == 0:
             self.x_offset = 0
-            self.y_offset = 0.5
+            self.y_offset = -0.5
             x_ref = 0 - self.x_offset
             y_ref = 0 - self.y_offset
 
@@ -62,7 +70,7 @@ class Initiator:
             y_ref = 0 - self.y_offset
         else:
             self.x_offset = 0
-            self.y_offset = -0.5
+            self.y_offset = 0.5
             x_ref = 0 - self.x_offset
             y_ref = 0 - self.y_offset
 
@@ -84,7 +92,7 @@ class Initiator:
         if self.rob_id == 0:
             x_goal = goals[0] - self.x_offset
             y_goal = goals[1] - self.y_offset
-
+            
         elif self.rob_id == 1:
             x_goal = goals[2] - self.x_offset
             y_goal = goals[3] - self.y_offset
@@ -154,18 +162,18 @@ class Initiator:
 
     def triangle(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
         x1_1 = 0
-        y1_1 = self.y_offset
+        y1_1 = 0
         x2_1 = np.sqrt(side_length**2 - self.y_offset**2)
         y2_1 = 0
         x3_1 = 0
-        y3_1 = self.y_offset
+        y3_1 = 0
 
         x1_2 = np.sqrt(side_length**2 - self.y_offset**2)
-        y1_2 = self.y_offset
-        x2_2 = 0
+        y1_2 = 0
+        x2_2 = 0 
         y2_2 = 0
         x3_2 = np.sqrt(side_length**2 - self.y_offset**2)
-        y3_2 = self.y_offset
+        y3_2 = 0
 
 
         triangleGoal_base = [x1_1,y1_1,x2_1,y2_1,x3_1,y3_1]
@@ -203,50 +211,178 @@ class Initiator:
             goal_rot1 = self.rotate_around_point(lineGoal_base[0],lineGoal_base[1],0,0,90+orientation)
             goal_rot2 = self.rotate_around_point(lineGoal_base[2],lineGoal_base[3],0,0,90+orientation)
             goal_rot3 = self.rotate_around_point(lineGoal_base[4],lineGoal_base[5],0,0,90+orientation)
-
+        
         lineGoal = [goal_rot1[0],goal_rot1[1],goal_rot2[0],goal_rot2[1],goal_rot3[0],goal_rot3[1]]
 
         return lineGoal
+
+##################################
+# 
+#       METHODS FOR SOCKET
+#           CONNECTIONS
+#
+##################################
+
+def create_send_sessions():
+    
+
+    # ROBOT 1
+    sendSocket1 = socket(AF_INET, SOCK_DGRAM)
+    sendSocket1.bind(('', ROBOT_PORT_1))
+    sendSocket1.connect((HOST, SERVER_PORT))
+
+    # ROBOT 2
+    sendSocket2 = socket(AF_INET, SOCK_DGRAM)
+    sendSocket2.bind(('', ROBOT_PORT_2))
+    sendSocket2.connect((HOST, SERVER_PORT))
+
+    # ROBOT 6
+    sendSocket6 = socket(AF_INET, SOCK_DGRAM)
+    sendSocket6.bind(('', ROBOT_PORT_6))
+    sendSocket6.connect((HOST, SERVER_PORT))
+
+    # ROBOT 10
+    sendSocket10 = socket(AF_INET, SOCK_DGRAM)
+    sendSocket10.bind(('', ROBOT_PORT_10))
+    sendSocket10.connect((HOST, SERVER_PORT))
+
+    addr = (HOST, SERVER_PORT)
+
+
+    # CREATE THE SESSIONS
+    session1 = websocket_session.Session(sendSocket1, addr)
+    session2 = websocket_session.Session(sendSocket2, addr)
+    session6 = websocket_session.Session(sendSocket6, addr)
+    session10 = websocket_session.Session(sendSocket10, addr)
+
+    
+
+    if ROBOT_ID == 1:
+        return [session2, session6, session10]
+        
+    elif ROBOT_ID == 2:
+        return [session1, session6, session10]
+
+    elif ROBOT_ID == 6:
+        return [session1, session2, sesson10]
+
+    else:
+        return [session1, session2, session6]
+
+
+def create_listen_session():
+    addr = (HOST, SERVER_PORT)
+
+    if ROBOT_ID == 1:
+        listenSocket1 = socket(AF_INET, SOCK_DGRAM)
+        listenSocket1.bind(('', SERVER_PORT))
+
+        return websocket_session.Session(listenSocket1, addr)
+
+    elif ROBOT_ID == 2:
+        listenSocket2 = socket(AF_INET, SOCK_DGRAM)
+        listenSocket2.bind(('', SERVER_PORT))
+
+        return websocket_session.Session(listenSocket2, addr)
+
+    elif ROBOT_ID == 6:
+        listenSocket6 = socket(AF_INET, SOCK_DGRAM)
+        listenSocket6.bind(('', SERVER_PORT))
+
+        return websocket_session.Session(listenSocket6, addr)
+
+    else:
+        listenSocket10 = socket(AF_INET, SOCK_DGRAM)
+        listenSocket10.bind(('', SERVER_PORT))
+
+        return websocket_session.Session(listenSocket10, addr)
+
+
+def sessions_shutdown(sessions, listenSession):
+    for session in sessions:
+        session.shutdown()
+
+    listenSession.shutdown()
+
+
 
 
 
 if __name__ == '__main__':
     try:
         rospy.init_node('please_work',anonymous=True)
-        mover = local_plan.Movement()
 
+        # create initiator
+        mover = local_plan.Movement()
         initiator = Initiator(mover)
 
 
-
-        shape = int(input('What shape would you like? Type the number Options: 1) up triangle, 2) down triangle, 3) vertical line, 4) horizontal line: '))
-
-        # THE REFERENCE POINT IS RELATIVE TO ROBOT 0, ROBOT 0 IS CONSIDERED 0,0
-        ref_point_input = input('Where would you like the shape to go? Ex. 3,3: ')
-        ref_point = ref_point_input
-        x_ref = ref_point[0]
-        y_ref = ref_point[1]
-
-        # How big do you want the shape?
-        side_length = input('What would you like the side length of the shape? Ex. 3: ')
+        # CREATE THE SESSIONS FOR ROBOTS
+        
 
 
+        job = raw_input("Am I (s)ending or (r)eceiving?")
+        
+        # RETURN A LIST OF SESSIONS TO SEND THE MESSAGE TO
+        sessions = create_send_sessions()
+        listenSession = create_listen_session()
+
+        # Sending out the commands
+        if job == "s":
+
+           
+
+            # ASK ABOUT SPECIFIC COMMANDS
+            shape = int(input('What shape would you like? Type the number Options: 1) up triangle, 2) down triangle, 3) vertical line, 4) horizontal line: '))
 
 
-        ready=raw_input('Are you ready? (yes/no)').lower()
+            # THE REFERENCE POINT IS RELATIVE TO ROBOT 0, ROBOT 0 IS CONSIDERED 0,0
+            ref_point_input = input('Where would you like the shape to go? Ex. 3,3: ')
+            ref_point = ref_point_input
+            x_ref = ref_point[0]
+            y_ref = ref_point[1]
 
-        while ready == 'no':
-            time.sleep(5)
-            ready=raw_input('Are you ready?')
+            # How big do you want the shape?
+            side_length = input('What would you like the side length of the shape? Ex. 3: ')
 
 
 
-        initiator.get_into_formation(shape,x_ref,y_ref,side_length)
-        raw_input("Hit enter when all robots are in the formation")
-        initiator.move_to_ref_point(x_ref,y_ref)
-        raw_input("Hit enter to return home")
-        initiator.reset_to_home()
+
+            ready=raw_input('Are you ready? (yes/no)').lower()
+
+            while ready == 'no':
+                time.sleep(5)
+                ready=raw_input('Are you ready?')
+
+
+            # CREATE THE BYTE PACKET TO SEND WITH THE INFORMATION
+            toSend_packet = str(shape) + "," + str(x_ref) + "," + str(y_ref) + "," + str(side_length)
+            toSend_packet = toSend_packet.encode('utf-8')
+
+            for session in sessions:
+                to_send_msg = session.make_DATA(toSend_packet, 1)
+                session.send_message(to_send_msg)
+
+
+
+
+
+        else:
+
+            # RECEIVE THE DATA FROM PORT
+            session_packet = listenSession.receive_message()
+            rospy.loginfo("Message received " + str(session_packet["data"]))
+
+            # initiator.get_into_formation(shape,x_ref,y_ref,side_length)
+            # raw_input("Hit enter when all robots are in the formation")
+            # initiator.move_to_ref_point(x_ref,y_ref)
+            # raw_input("Hit enter to return home")
+            # initiator.reset_to_home() # TO DO: FIGURE THIS ONE OUT
+
+        sessions_shutdown()
 
 
     except rospy.ROSInterruptException:
         rospy.loginfo("Didn't work, so cry")
+
+
