@@ -3,6 +3,8 @@ import struct
 import sys
 import time
 
+import rospy
+
 BUF_SIZE = 1024
 
 
@@ -16,7 +18,7 @@ class Session:
 	def make_DATA(self, chunk, blocknum):
 		rospy.loginfo("Make DATA packet")
 		opcode = 3
-		if blocknum > 65535 ot blocknum < 0:
+		if blocknum > 65535 or blocknum < 0:
 			raise InvalidPacketError(4, "block number out of range")
 		chunk_length = str(len(chunk))
 		format_string = "!HH" + chunk_length + 's'
@@ -33,7 +35,8 @@ class Session:
 	
 
 	def send_message(self, packet):
-		self.socket.sendTo(packet, self.addr)
+		print(packet)
+		self.socket.sendto(packet, self.addr)
 		rospy.loginfo("Readt message sent")
 
 	

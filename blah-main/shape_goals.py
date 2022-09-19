@@ -25,6 +25,7 @@ from geometry_msgs.msg import Pose, Point, Quaternion, Twist
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
 from math import atan2
+from socket import *
 
 
 ROBOT_ID = 10 # TO CHANGE ON EACH COMPUTER
@@ -255,7 +256,7 @@ def create_send_sessions():
     session6 = websocket_session.Session(sendSocket6, addr)
     session10 = websocket_session.Session(sendSocket10, addr)
 
-    
+
 
     if ROBOT_ID == 1:
         return [session2, session6, session10]
@@ -297,6 +298,12 @@ def create_listen_session():
 
         return websocket_session.Session(listenSocket10, addr)
 
+def send_msg_to_sessions(sessions, msg, blocknum):
+    msg_encode = msg.encode('utf-8')
+    for session in sessions:
+        to_send_msg = session.make_DATA(msg_encode, blocknum)
+        session.send_message(to_send_msg)
+
 
 def sessions_shutdown(sessions, listenSession):
     for session in sessions:
@@ -305,6 +312,28 @@ def sessions_shutdown(sessions, listenSession):
     listenSession.shutdown()
 
 
+
+
+def read_packets(packets):
+    shape = 0
+    x_ref = 0
+    y_ref = 0
+    size = 0
+    for packet in packets:
+        if packet["blocknum"] == 1:
+            shape = int(packet["data"])
+            rospy.loginfo("shape: " + str(packet["data"]))
+        elif packet["blocknum"] == 2:
+            x_ref = int(packet["data"])
+            rospy.loginfo("x-ref: " +str(packet["data"]))
+        elif packet["blocknum"] == 3:
+            y_ref = int(packet["data"])
+            rospy.loginfo("y-ref: " + str(packet["data"]))
+        elif:
+            size = int(packet["data"])
+            rospy.loginfo("size: " + str(packet["data"]))
+
+    return shape, x_ref, y_ref, size
 
 
 
@@ -333,18 +362,20 @@ if __name__ == '__main__':
            
 
             # ASK ABOUT SPECIFIC COMMANDS
-            shape = int(input('What shape would you like? Type the number Options: 1) up triangle, 2) down triangle, 3) vertical line, 4) horizontal line: '))
-
+            shape = input('What shape would you like? Type the number Options: 1) up triangle, 2) down triangle, 3) vertical line, 4) horizontal line: ')
+            send_msg_to_sessions(sessions, shape, 1)
 
             # THE REFERENCE POINT IS RELATIVE TO ROBOT 0, ROBOT 0 IS CONSIDERED 0,0
             ref_point_input = input('Where would you like the shape to go? Ex. 3,3: ')
             ref_point = ref_point_input
             x_ref = ref_point[0]
             y_ref = ref_point[1]
+            send_msg_to_sessions(sessions, str(x_ref), 2)
+            send_msg_to_sessions(sessions, str(y_ref), 3)
 
             # How big do you want the shape?
             side_length = input('What would you like the side length of the shape? Ex. 3: ')
-
+            send_msg_to_sessions(sessions, str(side_length), 4)
 
 
 
@@ -353,15 +384,9 @@ if __name__ == '__main__':
             while ready == 'no':
                 time.sleep(5)
                 ready=raw_input('Are you ready?')
+            
+            send_msg_to_sessions(sessions, ready, 5)
 
-
-            # CREATE THE BYTE PACKET TO SEND WITH THE INFORMATION
-            toSend_packet = str(shape) + "," + str(x_ref) + "," + str(y_ref) + "," + str(side_length)
-            toSend_packet = toSend_packet.encode('utf-8')
-
-            for session in sessions:
-                to_send_msg = session.make_DATA(toSend_packet, 1)
-                session.send_message(to_send_msg)
 
 
 
@@ -370,8 +395,16 @@ if __name__ == '__main__':
         else:
 
             # RECEIVE THE DATA FROM PORT
-            session_packet = listenSession.receive_message()
-            rospy.loginfo("Message received " + str(session_packet["data"]))
+            packet = listenSession.receive_message()
+            packet2 = listenSession.receive_message()
+            packet3 = listenSession.receive_message()
+            packet4 = listenSession.receive_message()
+            packet5 = listenSession.receive_message()
+            packets = [packet, packet2, packet3, packet4, packet5]
+
+
+            # WAITS TO READ UNTIL ALL 5 ARE RECEIVED
+            shape, x_ref, y_ref, side_length = read_packets(packets)
 
             # initiator.get_into_formation(shape,x_ref,y_ref,side_length)
             # raw_input("Hit enter when all robots are in the formation")
