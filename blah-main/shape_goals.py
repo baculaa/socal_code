@@ -233,19 +233,25 @@ if __name__ == '__main__':
 
 
 
-        ready=raw_input('Are you ready? (yes/no)').lower()
+        ready=raw_input('Formation? yes/no').lower()
 
-        while ready == 'no':
-            time.sleep(5)
-            ready=raw_input('Are you ready?')
+        if ready == 'yes':
+            initiator.get_into_formation(shape,x_ref,y_ref,side_length)
+        else:
+            pass
+
+        forward = raw_input("Forward? yes/no")
+        if forward == 'yes':
+            initiator.move_to_ref_point(x_ref,y_ref)
+        else:
+            pass
 
 
-
-        initiator.get_into_formation(shape,x_ref,y_ref,side_length)
-        raw_input("Hit enter when all robots are in the formation")
-        initiator.move_to_ref_point(x_ref,y_ref)
-        raw_input("Hit enter to return home")
-        initiator.reset_to_home()
+        home = raw_input("return home? yes/no")
+        if home == 'yes':
+            initiator.reset_to_home()
+        else:
+            pass
 
 
     except rospy.ROSInterruptException:
