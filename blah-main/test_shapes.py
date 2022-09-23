@@ -247,17 +247,19 @@ if __name__ == '__main__':
 
 
 
-        shape = int(input('What shape would you like? Type the number Options: 1) up triangle, 2) down triangle, 3) vertical line, 4) horizontal line: '))
-
+        # shape = int(input('What shape would you like? Type the number Options: 1) up triangle, 2) down triangle, 3) vertical line, 4) horizontal line: '))
+        shape = 1
         # THE REFERENCE POINT IS RELATIVE TO ROBOT 0, ROBOT 0 IS CONSIDERED 0,0
-        ref_point_input = input('Where would you like the shape to go? Ex. 3,3: ')
-        ref_point = ref_point_input
-        x_ref = ref_point[0]
-        y_ref = ref_point[1]
+        # ref_point_input = input('Where would you like the shape to go? Ex. 3,3: ')
+        # ref_point = ref_point_input
+        # x_ref = ref_point[0]
+        # y_ref = ref_point[1]
+        x_ref = 0.5
+        y_ref = 0
 
         # How big do you want the shape?
-        side_length = input('What would you like the side length of the shape? Ex. 3: ')
-
+        # side_length = input('What would you like the side length of the shape? Ex. 3: ')
+        side_length = 2
 
 
 
@@ -269,10 +271,35 @@ if __name__ == '__main__':
 
 
 
+        
         initiator.get_into_formation(shape,x_ref,y_ref,side_length)
         raw_input("Hit enter when all robots are in the formation")
         initiator.move_to_ref_point(x_ref,y_ref)
-        raw_input("Hit enter to return home")
+
+        x_ref = 0.5
+        y_ref = 0.1
+
+        initiator.move_to_ref_point(x_ref,y_ref)
+
+        x_ref = 0.5
+        y_ref = -0.2
+
+        initiator.move_to_ref_point(x_ref,y_ref)
+
+        x_ref = 0.5
+        y_ref = 0.2
+
+        initiator.move_to_ref_point(x_ref,y_ref)
+
+        x_ref = 0.5
+        y_ref = -0.2
+
+        initiator.move_to_ref_point(x_ref,y_ref)
+
+
+
+        # raw_input("Hit enter to return home")
+
         initiator.reset_to_home()
 
 
