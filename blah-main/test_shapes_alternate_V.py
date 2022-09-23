@@ -250,17 +250,25 @@ if __name__ == '__main__':
         side_length = 0.5
         raw_input("Hit enter when all robots are in the formation")
         initiator.get_into_formation(shape, ref_point[0], ref_point[1], side_length)
-        raw_input("Hit enter when all robots are in the formation")
         initiator.move_to_ref_point(ref_point[0], ref_point[1])
         
         shape = 2
         ref_point = [1 + 0,433, 1]
         side_length = 0.5
-        raw_input("Hit enter when all robots are in the formation")
         initiator.get_into_formation(shape, ref_point[0], ref_point[1], side_length)
-        raw_input("Hit enter when all robots are in the formation")
         initiator.move_to_ref_point(ref_point[0], ref_point[1])
-        raw_input("Hit enter when all robots are in the formation")
+        
+        shape = 1
+        ref_point = [1 + 0,433, 1]
+        side_length = 0.5
+        initiator.get_into_formation(shape, ref_point[0], ref_point[1], side_length)
+        initiator.move_to_ref_point(ref_point[0], ref_point[1])
+        
+        shape = 2
+        ref_point = [1 + 0,866, 1]
+        side_length = 0.5
+        initiator.get_into_formation(shape, ref_point[0], ref_point[1], side_length)
+        initiator.move_to_ref_point(ref_point[0], ref_point[1])
         initiator.reset_to_home()
     except rospy.ROSInterruptException:
         rospy.loginfo("Didn't work, so cry")
