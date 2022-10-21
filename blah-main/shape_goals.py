@@ -110,7 +110,7 @@ class Initiator:
         goal.y = 0
 
         rospy.loginfo("Going home")
-        self.mover.move_to_goal_avoidance(goal)
+        self.mover.return_to_starting_pos(goal)
         self.mover.final_formation_orientation(0)
 
 
@@ -185,12 +185,20 @@ class Initiator:
 
     def line(self, shape, x_ref, y_ref, side_length, num_rob, orientation):
 
-        y1 = side_length/3
         x1 = 0
-        x2 = 0
+        y1 = -0.3
+        x2 = side_length
         y2 = 0
-        y3 = -side_length/3
-        x3 = 0
+        x3 = -side_length
+        y3 = 0.3
+
+        if shape == 3:
+            x1 = 0
+            y1 = -0.3
+            x2 = side_length
+            y2 = 0
+            x3 = -side_length
+            y3 = 0.3
 
         lineGoal_base = [x1,y1,x2,y2,x3,y3]
 
@@ -200,9 +208,9 @@ class Initiator:
             goal_rot3 = self.rotate_around_point(lineGoal_base[4],lineGoal_base[5],0,0,orientation)
 
         elif shape == 3:
-            goal_rot1 = self.rotate_around_point(lineGoal_base[0],lineGoal_base[1],0,0,90+orientation)
-            goal_rot2 = self.rotate_around_point(lineGoal_base[2],lineGoal_base[3],0,0,90+orientation)
-            goal_rot3 = self.rotate_around_point(lineGoal_base[4],lineGoal_base[5],0,0,90+orientation)
+            goal_rot1 = self.rotate_around_point(lineGoal_base[0],lineGoal_base[1],0,0,orientation)
+            goal_rot2 = self.rotate_around_point(lineGoal_base[2],lineGoal_base[3],0,0,orientation)
+            goal_rot3 = self.rotate_around_point(lineGoal_base[4],lineGoal_base[5],0,0,orientation)
 
         lineGoal = [goal_rot1[0],goal_rot1[1],goal_rot2[0],goal_rot2[1],goal_rot3[0],goal_rot3[1]]
 
@@ -222,19 +230,20 @@ if __name__ == '__main__':
         shape = int(input('What shape would you like? Type the number Options: 1) up triangle, 2) down triangle, 3) vertical line, 4) horizontal line: '))
 
         # THE REFERENCE POINT IS RELATIVE TO ROBOT 0, ROBOT 0 IS CONSIDERED 0,0
-        ref_point_input = input('Where would you like the shape to go? Ex. 3,3: ')
-        ref_point = ref_point_input
-        x_ref = ref_point[0]
-        y_ref = ref_point[1]
+        #ref_point_input = input('Where would you like the shape to go? Ex. 3,3: ')
+        #ref_point = ref_point_input
+	
+        x_ref = 1 #ref_point[0]
+        y_ref = 0 #ref_point[1]
 
         # How big do you want the shape?
-        side_length = input('What would you like the side length of the shape? Ex. 3: ')
+        side_length = 1 #input('What would you like the side length of the shape? Ex. 3: ')
 
 
 
 
         ready=raw_input('Formation? yes/no').lower()
-
+ 
         if ready == 'yes':
             initiator.get_into_formation(shape,x_ref,y_ref,side_length)
         else:

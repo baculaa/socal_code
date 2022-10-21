@@ -37,9 +37,9 @@ class Movement:
         self.cur_y = 0.0
         self.theta = 0.0
 
-        self.delta = 0.1
+        self.delta = 0.2
 
-        self.rot_speed = 0.3
+        self.rot_speed = 0.25
         self.forward_speed = 0.6
         # rospy.init_node("speed_controller")
 
@@ -149,7 +149,7 @@ class Movement:
                 reached = True
 
 
-            elif abs(angle_to_goal - self.theta) > 0.3:  # self.delta:
+            elif abs(angle_to_goal - self.theta) > 0.1:  # self.delta:
                 if y > 0:
                     self.move.linear.x = 0.0
                     self.move.angular.z = self.rot_speed  # 0.25
@@ -171,18 +171,54 @@ class Movement:
             self.pub.publish(self.move)
             self.r.sleep()
 
-    def return_to_starting_pos(self):
-        startGoal = Point()
-        startGoal.x = 0
-        startGoal.y = 0
+    def return_to_starting_pos(self,curGoal):
+        reached = False
+        x = curGoal.x
+        y = curGoal.y
+        rospy.loginfo("Inside move_to_goal_point()")
+        while not rospy.is_shutdown() and not reached:
+            inc_x = x - self.cur_x
+            inc_y = y - self.cur_y
 
-        # prompt user if ready to return to table
-        ready = raw_input("Should the robot return to the starting position (y/n)?")
+            rospy.loginfo("Incrementation of x: " + str(inc_x))
+            rospy.loginfo("Incrementation of y: " + str(inc_y))
+            rospy.loginfo("Current goal: " + str(curGoal))
 
-        if ready.lower() == "y":
-            self.move_to_goal_avoidance(startGoal)
-        else:
-            rospy.loginfo("Study complete. People didn't summon robot")
+            angle_to_goal = atan2(inc_y, inc_x)
+            dist = math.sqrt(((x - self.cur_x) ** 2) + ((y - self.cur_y) ** 2))
+            # rospy.loginfo("Current distance to goal: " + str(dist))
+
+            # IS NOT UPDATING TO THE NEW ANGLE SEEN, SO IT IS STUCK AT 0.78
+            if dist <= self.delta:  # and abs(self.theta) <= self.delta * 0.5:
+                rospy.loginfo("Theta: " + str(self.theta))
+                rospy.loginfo("Robot is close enough to the participants. Stopping now!")
+                self.move.linear.x = 0.0
+                self.move.angular.z = 0.0
+                reached = True
+
+
+            elif abs(angle_to_goal - self.theta) > 0.2:  # self.delta:
+                if angle_to_goal - self.theta < 0:
+                    self.move.linear.x = 0.0
+                    self.move.angular.z = self.rot_speed*0.9  # 0.25
+                    # do something
+                else:
+                    self.move.linear.x = 0.0
+                    self.move.angular.z = -1 * self.rot_speed*0.9  # -0.25
+
+            else:
+                if self.moveScan['fleft'] < 0.6 or self.moveScan['fright'] < 0.6:
+                    rospy.loginfo("Fleft range is: " + str(self.moveScan['fleft']))
+                    rospy.loginfo("Fright range is: " + str(self.moveScan['fleft']))
+                    self.move.linear.x = 0.0
+                    self.move.angular.z = 0.0
+                else:
+                    self.move.linear.x = self.forward_speed  # 0.5
+                    self.move.angular.z = 0.0
+
+            self.pub.publish(self.move)
+            self.r.sleep()
+
 
     # PASS GOAL POINT TO MOVEMENT FUNCTION
     def stop(self):
