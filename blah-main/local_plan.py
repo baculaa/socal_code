@@ -150,13 +150,15 @@ class Movement:
 
 
             elif abs(angle_to_goal - self.theta) > 0.1:  # self.delta:
-                if angle_to_goal - self.theta < 0:
-                    self.move.linear.x = 0.0
-                    self.move.angular.z = self.rot_speed  # 0.25
-                    # do something
+               if angle_to_goal - self.theta < 0:
+		    while abs(angle_to_goal - self.theta) > self.delta:
+                        self.move.linear.x = 0.0
+                        self.move.angular.z = self.rot_speed  # 0.25
+                        # do something
                 else:
-                    self.move.linear.x = 0.0
-                    self.move.angular.z = -1 * self.rot_speed  # -0.25
+		    while abs(angle_to_goal - self.theta) > self.delta:
+                        self.move.linear.x = 0.0
+                        self.move.angular.z = -1 * self.rot_speed  # -0.25
 
             else:
                 if self.moveScan['fleft'] < 0.6 or self.moveScan['fright'] < 0.6:
@@ -197,14 +199,16 @@ class Movement:
                 reached = True
 
 
-            elif abs(angle_to_goal - self.theta) > 0.15:  # self.delta:
+            elif abs(angle_to_goal - self.theta) > self.delta:  
                 if angle_to_goal - self.theta < 0:
-                    self.move.linear.x = 0.0
-                    self.move.angular.z = self.rot_speed*0.9  # 0.25
-                    # do something
+		    while abs(angle_to_goal - self.theta) > self.delta:
+                        self.move.linear.x = 0.0
+                        self.move.angular.z = self.rot_speed*0.9  # 0.25
+                        # do something
                 else:
-                    self.move.linear.x = 0.0
-                    self.move.angular.z = -1 * self.rot_speed*0.9  # -0.25
+		    while abs(angle_to_goal - self.theta) > self.delta:
+                        self.move.linear.x = 0.0
+                        self.move.angular.z = -1 * self.rot_speed*0.9  # -0.25
 
             else:
                 if self.moveScan['fleft'] < 0.6 or self.moveScan['fright'] < 0.6:
@@ -264,3 +268,4 @@ class Movement:
                 self.move.linear.x = 0.0
                 self.move.angular.z = -self.rot_speed
             self.pub.publish(self.move)
+
